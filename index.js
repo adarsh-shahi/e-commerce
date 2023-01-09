@@ -1,19 +1,21 @@
 import express from "express";
+import bodyParser from 'body-parser'
 
 const app = express();
+app.use(bodyParser.urlencoded({extended: true}))
 
-const bodyParser = (req, res, next) => {
-	req.on("data", (data) => {
-		const parsed = data.toString("utf-8").split("&");
-		const formData = {};
-		parsed.forEach((pair) => {
-			const [key, value] = pair.split("=");
-			formData[key] = value;
-		});
-		req.body = formData;
-		next();
-	});
-};
+// const bodyParser = (req, res, next) => {
+// 	req.on("data", (data) => {
+// 		const parsed = data.toString("utf-8").split("&");
+// 		const formData = {};
+// 		parsed.forEach((pair) => {
+// 			const [key, value] = pair.split("=");
+// 			formData[key] = value;
+// 		});
+// 		req.body = formData;
+// 		next();
+// 	});
+// };
 
 app.get("/", (req, res) => {
 	res.send(`<div>
@@ -26,7 +28,7 @@ app.get("/", (req, res) => {
     </div>`);
 });
 
-app.post("/", bodyParser, (req, res) => {
+app.post("/", (req, res) => {
 	console.log(req.body);
 	res.send("app created");
 });
