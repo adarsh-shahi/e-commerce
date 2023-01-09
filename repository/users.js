@@ -37,21 +37,39 @@ class UsersRepository {
 	randomID() {
 		return crypto.randomBytes(4).toString("hex");
 	}
+
+	async getOne(id) {
+		const records = await this.getAll();
+		return records.find((record) => record.id === id);
+	}
+
+	async delete(id) {
+		const records = await this.getAll();
+		const filteredRecords = records.filter((record) => record.id !== id);
+		await this.writeAll(filteredRecords);
+	}
+
+	async update(id, attrs) {
+		const records = await this.getAll();
+		const record = records.find((record) => record.id === id);
+		if (!record) throw new Error(`Record with id ${id} not found`);
+		Object.assign(record, attrs);
+		await this.writeAll(records);
+	}
+
+	async getOneBy(filters) {
+		let found = true;
+		const records = await this.getAll();
+		for (const record of records) {
+			for (const key in filters) {
+				if (record[key] !== filters[key]) {
+					found = false;
+					break;
+				}
+			}
+			if (found) return record;
+		}
+	}
 }
 
-const test = async () => {
-	const userRepo = new UsersRepository("users.json");
-	console.log(await userRepo.getAll());
-	await userRepo.create({
-		email: "adarsh@me.dev",
-		password: "mb3000",
-	});
-	console.log(await userRepo.getAll());
-	await userRepo.create({
-		email: "atharva@me.coo",
-		password: "aw3000",
-	});
-	console.log(await userRepo.getAll());
-};
-
-test();
+export default new UsersRepository('users.json');
