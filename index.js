@@ -1,8 +1,15 @@
 import express from "express";
-import bodyParser from 'body-parser'
+import bodyParser from "body-parser";
+import cookieSession from "cookie-session";
+import userInstance from "./repository/users.js";
 
 const app = express();
-app.use(bodyParser.urlencoded({extended: true}))
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(
+	cookieSession({
+		keys: ["fdasfhkdsafjhkhnnfisfdj"],
+	})
+);
 
 // const bodyParser = (req, res, next) => {
 // 	req.on("data", (data) => {
@@ -28,9 +35,20 @@ app.get("/", (req, res) => {
     </div>`);
 });
 
-app.post("/", (req, res) => {
-	console.log(req.body);
-	res.send("app created");
+app.post("/", async (req, res) => {
+	const { email, password, passwordConfirmation } = req.body;
+	try {
+		const existingUser = await userInstance.getOneBy({ email });
+		if (existingUser)
+			throw new Error(`User already exists with Email: ${email}`);
+		if (password !== passwordConfirmation)
+			throw new Error(`password dosen't match`);
+		const user = await userInstance.create({ email, password });
+		req.session.userId = user.id;
+		res.send("User created");
+	} catch (err) {
+		res.send(`Error Occured: ${err}`);
+	}
 });
 
 app.listen(3000, () => {

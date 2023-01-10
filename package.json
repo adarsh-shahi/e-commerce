@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/adarsh-shahi/e-commerce#readme",
   "dependencies": {
+    "cookie-session": "^2.0.0",
     "express": "^4.18.2"
   },
   "devDependencies": {
